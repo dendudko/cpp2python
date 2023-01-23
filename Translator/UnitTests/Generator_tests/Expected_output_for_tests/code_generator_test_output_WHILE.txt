@@ -1,0 +1,9 @@
+def main():
+	a = 10
+	while a <= 100:
+		a = a + 10
+	b = a
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,11 @@
+def main():
+	a = 10
+	if a < 15:
+		a = 0
+	else:
+		a = a + 10
+	b = a
+
+
+if __name__ == "__main__":
+    main()

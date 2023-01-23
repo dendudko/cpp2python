@@ -1,0 +1,20 @@
+def func1(a):
+
+	if a < 15:
+		a = 0
+	else:
+		a = a + 10
+	return a
+
+def func2(c):
+	c = c + 5
+	return c
+
+def main():
+	a = 10
+	b = func1(a)
+	c = a + func2(b)
+
+
+if __name__ == "__main__":
+    main()

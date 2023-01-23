@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Translator</title>
+    <link rel="stylesheet" type="text/css" href="../static/CSS/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../static/CSS/style_for_tabs.css"/>
+    <link href="../static/image/icon.png" rel="icon" type="image/x-icon">
+
+    <script>
+        document.addEventListener('keydown', function (event) {
+
+            if ('TEXTAREA' !== event.target.tagName)
+                return
+
+            // not tab
+            if (event.code !== 'Tab')
+                return
+
+            event.preventDefault()
+
+            // Opera, FireFox, Chrome
+            let textarea = event.target
+            let selStart = textarea.selectionStart
+            let selEnd = textarea.selectionEnd
+            let before = textarea.value.substring(0, selStart)
+            let slection = textarea.value.substring(selStart, selEnd)
+            let after = textarea.value.substr(selEnd)
+            let slection_new = ''
+
+            // remove TAB indent
+            if (event.shiftKey) {
+
+                // fix selection
+                let selectBefore = before.substr(before.lastIndexOf('\n') + 1)
+                let isfix = /^\s/.test(selectBefore)
+                if (isfix) {
+                    let fixed_selStart = selStart - selectBefore.length
+                    before = textarea.value.substring(0, fixed_selStart)
+                    slection = textarea.value.substring(fixed_selStart, selEnd)
+                }
+
+                let once = false
+                slection_new = slection.replace(/^(\t|[ ]{2,4})/gm, (mm) => {
+
+                    if (isfix && !once) {
+                        once = true // do it once - for first line only
+                        selStart -= mm.length
+                    }
+
+                    selEnd -= mm.length
+                    return ''
+                })
+            }
+            // add TAB indent
+            else {
+                selStart++
+
+                // has selection
+                if (slection.trim()) {
+                    slection_new = slection.replace(/^/gm, () => {
+                        selEnd++
+                        return '\t'
+                    })
+                } else {
+                    slection_new = '\t'
+                    selEnd++
+                }
+            }
+
+            textarea.value = before + slection_new + after
+
+            // cursor
+            textarea.setSelectionRange(selStart, selEnd)
+        });
+    </script>
+</head>
+
+<body>
+<h2>Translator C++ → Python</h2>
+<div class="container">
+    <form method="get">
+        <div class="input">
+            <textarea onkeydown="insertTab(event, this)" id="subject" name="input_code" required
+                      placeholder="Write code on C++...">{{ input_code }}</textarea>
+        </div>
+
+        <div>
+            <input type="submit" name='translate' value="Translate">
+        </div>
+    </form>
+
+    <div class="output">
+        <div class="tabs">
+            <input type="radio" name="inset" value="" id="tab_1" checked><label for="tab_1"
+                {% if syntax_error or semantic_error %} style="color: red;" {% endif %}>Code</label>
+            <input type="radio" name="inset" value="" id="tab_2"><label for="tab_2">Lexer</label>
+            <input type="radio" name="inset" value="" id="tab_3"><label for="tab_3"
+                {% if syntax_error %} style="color: red;" {% endif %}>Syntax</label>
+            <input type="radio" name="inset" value="" id="tab_4"><label for="tab_4"
+                {% if semantic_error %} style="color: red;" {% endif %}>Semantics</label>
+
+            <div id="txt_1">
+                    <textarea id="subject" name="output_codes" readonly
+                              placeholder="The python code will appear here"
+                            {% if syntax_error or semantic_error %}
+                              style="color: darkred;" {% endif %}>{{ output_code }}</textarea>
+            </div>
+
+            <div id="txt_2">
+                    <textarea id="subject" name="output_lexer" readonly
+                              placeholder="Lexer info will appear here">{{ lexer }}</textarea>
+            </div>
+
+            <div id="txt_3">
+                    <textarea id="subject" name="output_syntax" readonly
+                              placeholder="Syntax info will appear here">{{ syntax }}</textarea>
+            </div>
+
+            <div id="txt_4">
+                    <textarea id="subject" name="output_semantics" readonly
+                              placeholder="Semantics info will appear here">{{ semantic }}</textarea>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</body>
+</html>
